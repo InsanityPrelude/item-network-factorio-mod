@@ -21,8 +21,8 @@ function M.setup()
 end
 
 function M.inner_setup()
-  if global.mod == nil then
-    global.mod = {
+  if storage.mod == nil then
+    storage.mod = {
       rand = game.create_random_generator(),
       chests = {},
       scan_queue = Queue.new(),
@@ -30,83 +30,83 @@ function M.inner_setup()
     }
   end
   M.remove_old_ui()
-  if global.mod.player_info == nil then
-    global.mod.player_info = {}
+  if storage.mod.player_info == nil then
+    storage.mod.player_info = {}
   end
 
-  if global.mod.network_chest_has_been_placed == nil then
-    global.mod.network_chest_has_been_placed = global.mod.scan_queue.size > 0
+  if storage.mod.network_chest_has_been_placed == nil then
+    storage.mod.network_chest_has_been_placed = storage.mod.scan_queue.size > 0
   end
 
-  if global.mod.fluids == nil then
-    global.mod.fluids = {}
+  if storage.mod.fluids == nil then
+    storage.mod.fluids = {}
   end
-  if global.mod.missing_items == nil then
-    global.mod.missing_items = {} -- missing_items[item][unit_number] = { game.tick, count }
+  if storage.mod.missing_items == nil then
+    storage.mod.missing_items = {} -- missing_items[item][unit_number] = { game.tick, count }
   end
-  if global.mod.missing_fluid == nil then
-    global.mod.missing_fluid = {} -- missing_fluid[key][unit_number] = { game.tick, count }
+  if storage.mod.missing_fluid == nil then
+    storage.mod.missing_fluid = {} -- missing_fluid[key][unit_number] = { game.tick, count }
   end
-  if global.mod.tanks == nil then
-    global.mod.tanks = {}
+  if storage.mod.tanks == nil then
+    storage.mod.tanks = {}
   end
 
-  if global.mod.vehicles == nil then
-    global.mod.vehicles = {} -- vehicles[unit_number] = entity
+  if storage.mod.vehicles == nil then
+    storage.mod.vehicles = {} -- vehicles[unit_number] = entity
     M.vehicle_scan_surfaces()
   end
 
-  if global.mod.logistic == nil then
-    global.mod.logistic = {} -- key=unit_number, val=entity
+  if storage.mod.logistic == nil then
+    storage.mod.logistic = {} -- key=unit_number, val=entity
   end
-  if global.mod.logistic_names == nil then
-    global.mod.logistic_names = {} -- key=item name, val=logistic_mode from prototype
+  if storage.mod.logistic_names == nil then
+    storage.mod.logistic_names = {} -- key=item name, val=logistic_mode from prototype
   end
   local logistic_names = M.logistic_scan_prototypes()
-  if not tables_have_same_keys(logistic_names, global.mod.logistic_names) then
-    global.mod.logistic_names = logistic_names
-    global.mod.logistic = {}
+  if not tables_have_same_keys(logistic_names, storage.mod.logistic_names) then
+    storage.mod.logistic_names = logistic_names
+    storage.mod.logistic = {}
     M.logistic_scan_surfaces()
   end
 
-  if global.mod.alert_trans == nil then
-    global.mod.alert_trans = {} -- alert_trans[unit_number] = game.tick
+  if storage.mod.alert_trans == nil then
+    storage.mod.alert_trans = {} -- alert_trans[unit_number] = game.tick
   end
 
-  if global.mod.sensors == nil then
-    global.mod.sensors = {}
+  if storage.mod.sensors == nil then
+    storage.mod.sensors = {}
   end
 
-  if not global.mod.has_run_fluid_temp_conversion then
+  if not storage.mod.has_run_fluid_temp_conversion then
     local new_fluids = {}
-    for fluid, count in pairs(global.mod.fluids) do
-      local default_temp = game.fluid_prototypes[fluid].default_temperature
+    for fluid, count in pairs(storage.mod.fluids) do
+      local default_temp = prototypes.fluid[fluid].default_temperature
       new_fluids[fluid] = {}
       new_fluids[fluid][default_temp] = count
     end
-    global.mod.fluids = new_fluids
+    storage.mod.fluids = new_fluids
     local n_tanks = 0
-    for _, entity in pairs(global.mod.tanks) do
+    for _, entity in pairs(storage.mod.tanks) do
       n_tanks = n_tanks + 1
       if entity.config ~= nil then
         entity.config.temperature =
-          game.fluid_prototypes[entity.config.fluid].default_temperature
+          prototypes.fluid[entity.config.fluid].default_temperature
       end
     end
     if n_tanks > 0 then
       game.print(
         "Migrated Item Network fluids to include temperatures. Warning: If you provide a fluid at a non-default temperature (like steam), you will have to update every requester tank to use the new fluid temperature.")
     end
-    global.mod.has_run_fluid_temp_conversion = true
+    storage.mod.has_run_fluid_temp_conversion = true
   end
 
-  if global.mod.active_scan_queue == nil then
-    global.mod.active_scan_queue = Queue.new()
+  if storage.mod.active_scan_queue == nil then
+    storage.mod.active_scan_queue = Queue.new()
   end
 
-  if not global.mod.has_run_fluid_temp_rounding_conversion then
+  if not storage.mod.has_run_fluid_temp_rounding_conversion then
     local new_fluids = {}
-    for fluid, temp_map in pairs(global.mod.fluids) do
+    for fluid, temp_map in pairs(storage.mod.fluids) do
       local new_temp_map = {}
       new_fluids[fluid] = new_temp_map
       for temp, count in pairs(temp_map) do
@@ -115,35 +115,35 @@ function M.inner_setup()
         new_temp_map[new_temp] = existing_count + count
       end
     end
-    global.mod.fluids = new_fluids
-    global.mod.has_run_fluid_temp_rounding_conversion = true
+    storage.mod.fluids = new_fluids
+    storage.mod.has_run_fluid_temp_rounding_conversion = true
   end
 
   -- always reset timers on load since they don't save state
-  global.mod.timers = {}
+  storage.mod.timers = {}
 
-  if global.mod.update_queue == nil then
+  if storage.mod.update_queue == nil then
     -- A priority queue sorted by update time
     -- that stores an entity id to update.
-    global.mod.update_queue = Heap.new()
+    storage.mod.update_queue = Heap.new()
 
     -- A map from item name -> info about the item
-    global.mod.items = {}
+    storage.mod.items = {}
 
     -- A map from fluid name to
     --   a map from temp to info about the fluid x temp
-    global.mod.fluids = {}
+    storage.mod.fluids = {}
 
     -- A map from entity ID to info about the entity.
-    global.mod.entities = {}
+    storage.mod.entities = {}
   end
 
-  for _, info in pairs(global.mod.items) do
+  for _, info in pairs(storage.mod.items) do
     if info.max_amount == nil then
       info.max_amount = info.amount
     end
   end
-  for _, temp_map in pairs(global.mod.fluids) do
+  for _, temp_map in pairs(storage.mod.fluids) do
     for _, info in pairs(temp_map) do
       if info.max_amount == nil then
         info.max_amount = info.amount
@@ -151,26 +151,26 @@ function M.inner_setup()
     end
   end
 
-  if global.mod.item_shortages == nil then
-    global.mod.item_shortages = {}
+  if storage.mod.item_shortages == nil then
+    storage.mod.item_shortages = {}
   end
 
-  if global.mod.fluid_shortages == nil then
-    global.mod.fluid_shortages = {}
+  if storage.mod.fluid_shortages == nil then
+    storage.mod.fluid_shortages = {}
   end
 end
 
 function M.start_timer(name)
-  local timer = global.mod.timers[name]
+  local timer = storage.mod.timers[name]
   if timer == nil then
     timer = Timer.new()
-    global.mod.timers[name] = timer
+    storage.mod.timers[name] = timer
   end
   Timer.start(timer)
 end
 
 function M.stop_timer(name)
-  local timer = global.mod.timers[name]
+  local timer = storage.mod.timers[name]
   if timer ~= nil then
     Timer.stop(timer)
   end
@@ -182,7 +182,7 @@ end
 
 function M.get_timers()
   local result = {}
-  for timer_name, timer in pairs(global.mod.timers) do
+  for timer_name, timer in pairs(storage.mod.timers) do
     table.insert(result, { name = timer_name, timer = timer })
   end
   table.sort(result, sort_timers)
@@ -227,11 +227,11 @@ local function get_missing_and_filter(miss_tbl)
 end
 
 function M.register_item_shortage(item, entity, amount)
-  if global.mod.item_shortages[item] == nil then
-    global.mod.item_shortages[item] = {}
+  if storage.mod.item_shortages[item] == nil then
+    storage.mod.item_shortages[item] = {}
   end
 
-  local item_map = global.mod.item_shortages[item]
+  local item_map = storage.mod.item_shortages[item]
 
   item_map[entity.unit_number] = {
     entity = entity,
@@ -244,7 +244,7 @@ function M.get_item_shortages()
   local deadline = game.tick - constants.MAX_MISSING_TICKS
   local shortages = {}
   local items_to_delete = {}
-  for item, item_map in pairs(global.mod.item_shortages) do
+  for item, item_map in pairs(storage.mod.item_shortages) do
     local uns_to_delete = {}
     for unit_number, info in pairs(item_map) do
       if info.tick >= deadline then
@@ -264,24 +264,24 @@ function M.get_item_shortages()
   end
 
   for _, item in ipairs(items_to_delete) do
-    global.mod.item_shortages[item] = nil
+    storage.mod.item_shortages[item] = nil
   end
   return shortages
 end
 
 function M.get_item_shortage_entities(item)
-  if global.mod.item_shortages[item] ~= nil then
-    return global.mod.item_shortages[item]
+  if storage.mod.item_shortages[item] ~= nil then
+    return storage.mod.item_shortages[item]
   end
   return {}
 end
 
 function M.register_fluid_shortage(fluid, temp, entity, amount)
-  if global.mod.fluid_shortages[fluid] == nil then
-    global.mod.fluid_shortages[fluid] = {}
+  if storage.mod.fluid_shortages[fluid] == nil then
+    storage.mod.fluid_shortages[fluid] = {}
   end
 
-  local fluid_map = global.mod.fluid_shortages[fluid]
+  local fluid_map = storage.mod.fluid_shortages[fluid]
   if fluid_map[temp] == nil then
     fluid_map[temp] = {}
   end
@@ -295,7 +295,7 @@ function M.register_fluid_shortage(fluid, temp, entity, amount)
 end
 
 function M.get_fluid_shortage_entities(fluid, temp)
-  local temp_map = global.mod.fluid_shortages[fluid]
+  local temp_map = storage.mod.fluid_shortages[fluid]
   if temp_map == nil then
     return {}
   end
@@ -312,7 +312,7 @@ function M.get_fluid_shortages()
   local deadline = game.tick - constants.MAX_MISSING_TICKS
   local shortages = {}
   local fluids_to_delete = {}
-  for fluid, fluid_map in pairs(global.mod.fluid_shortages) do
+  for fluid, fluid_map in pairs(storage.mod.fluid_shortages) do
     local temps_to_delete = {}
     for temp, temp_map in pairs(fluid_map) do
       local uns_to_delete = {}
@@ -347,7 +347,7 @@ function M.get_fluid_shortages()
   end
 
   for _, fluid in ipairs(fluids_to_delete) do
-    global.mod.fluid_shortages[fluid] = nil
+    storage.mod.fluid_shortages[fluid] = nil
   end
 
   return shortages
@@ -355,12 +355,12 @@ end
 
 -- mark an item as missing
 function M.DPRECATED_missing_item_set(item_name, unit_number, count)
-  set_missing(global.mod.missing_items, item_name, unit_number, count)
+  set_missing(storage.mod.missing_items, item_name, unit_number, count)
 end
 
 function M.remove_old_ui()
-  if global.mod.network_chest_gui ~= nil then
-    global.mod.network_chest_gui = nil
+  if storage.mod.network_chest_gui ~= nil then
+    storage.mod.network_chest_gui = nil
     for _, player in pairs(game.players) do
       local main_frame = player.gui.screen["network-chest-main-frame"]
       if main_frame ~= nil then
@@ -377,40 +377,40 @@ end
 
 -- this tracks that we already transferred an item for the request
 function M.alert_transfer_set(unit_number)
-  global.mod.alert_trans[unit_number] = game.tick
+  storage.mod.alert_trans[unit_number] = game.tick
 end
 
 -- get whether we have already transferred for this alert
 -- the item won't necessarily go where we want it
 function M.alert_transfer_get(unit_number)
-  return global.mod.alert_trans[unit_number] ~= nil
+  return storage.mod.alert_trans[unit_number] ~= nil
 end
 
 -- throw out stale entries, allowing another transfer
 function M.alert_transfer_cleanup()
   local deadline = game.tick - constants.ALERT_TRANSFER_TICKS
   local to_del = {}
-  for unum, tick in pairs(global.mod.alert_trans) do
+  for unum, tick in pairs(storage.mod.alert_trans) do
     if tick < deadline then
       table.insert(to_del, unum)
     end
   end
   for _, unum in ipairs(to_del) do
-    global.mod.alert_trans[unum] = nil
+    storage.mod.alert_trans[unum] = nil
   end
 end
 
 function M.rand_hex(len)
   local chars = {}
   for _ = 1, len do
-    table.insert(chars, string.format("%x", math.floor(global.mod.rand() * 16)))
+    table.insert(chars, string.format("%x", math.floor(storage.mod.rand() * 16)))
   end
   return table.concat(chars, "")
 end
 
 function M.shuffle(list)
   for i = #list, 2, -1 do
-    local j = global.mod.rand(i)
+    local j = storage.mod.rand(i)
     list[i], list[j] = list[j], list[i]
   end
 end
@@ -420,7 +420,7 @@ end
 function M.logistic_scan_prototypes()
   local info = {} -- key=name, val=logistic_mode
   -- find all with type="logistic-container" and (logistic_mode="requester" or logistic_mode="buffer")
-  for name, prot in pairs(game.get_filtered_entity_prototypes { {
+  for name, prot in pairs(prototypes.get_entity_filtered { {
     filter = "type",
     type = "logistic-container",
   } }) do
@@ -432,13 +432,13 @@ function M.logistic_scan_prototypes()
 end
 
 function M.is_logistic_entity(item_name)
-  return global.mod.logistic_names[item_name] ~= nil
+  return storage.mod.logistic_names[item_name] ~= nil
 end
 
 -- called once at startup if the logistc entity prototype list changed
 function M.logistic_scan_surfaces()
   local name_filter = {}
-  for name, _ in pairs(global.mod.logistic_names) do
+  for name, _ in pairs(storage.mod.logistic_names) do
     table.insert(name_filter, name)
   end
   for _, surface in pairs(game.surfaces) do
@@ -450,18 +450,18 @@ function M.logistic_scan_surfaces()
 end
 
 function M.get_logistic_entity(unit_number)
-  return global.mod.logistic[unit_number]
+  return storage.mod.logistic[unit_number]
 end
 
 function M.logistic_add_entity(entity)
-  if global.mod.logistic[entity.unit_number] == nil then
-    global.mod.logistic[entity.unit_number] = entity
-    Queue.push(global.mod.scan_queue, entity.unit_number)
+  if storage.mod.logistic[entity.unit_number] == nil then
+    storage.mod.logistic[entity.unit_number] = entity
+    Queue.push(storage.mod.scan_queue, entity.unit_number)
   end
 end
 
 function M.logistic_del(unit_number)
-  global.mod.logistic[unit_number] = nil
+  storage.mod.logistic[unit_number] = nil
 end
 
 function M.is_vehicle_entity(name)
@@ -478,31 +478,31 @@ function M.vehicle_scan_surfaces()
 end
 
 function M.get_vehicle_entity(unit_number)
-  return global.mod.vehicles[unit_number]
+  return storage.mod.vehicles[unit_number]
 end
 
 -- add a vehicle, assume the caller knows what he is doing
 function M.vehicle_add_entity(entity)
-  if global.mod.vehicles[entity.unit_number] == nil then
-    global.mod.vehicles[entity.unit_number] = entity
-    Queue.push(global.mod.scan_queue, entity.unit_number)
+  if storage.mod.vehicles[entity.unit_number] == nil then
+    storage.mod.vehicles[entity.unit_number] = entity
+    Queue.push(storage.mod.scan_queue, entity.unit_number)
   end
 end
 
 function M.vehicle_del(unit_number)
-  global.mod.vehicles[unit_number] = nil
+  storage.mod.vehicles[unit_number] = nil
 end
 
 function M.sensor_add(entity)
-  global.mod.sensors[entity.unit_number] = entity
+  storage.mod.sensors[entity.unit_number] = entity
 end
 
 function M.sensor_del(unit_number)
-  global.mod.sensors[unit_number] = nil
+  storage.mod.sensors[unit_number] = nil
 end
 
 function M.sensor_get_list()
-  return global.mod.sensors
+  return storage.mod.sensors
 end
 
 function M.get_updates_per_tick()
@@ -510,7 +510,7 @@ function M.get_updates_per_tick()
 end
 
 function M.get_update_period()
-  return math.ceil(global.mod.update_queue.size / M.get_updates_per_tick())
+  return math.ceil(storage.mod.update_queue.size / M.get_updates_per_tick())
 end
 
 function M.get_default_update_period()
@@ -518,11 +518,11 @@ function M.get_default_update_period()
 end
 
 function M.register_entity(entity_id, info)
-  if global.mod.entities[entity_id] ~= nil then
+  if storage.mod.entities[entity_id] ~= nil then
     return
   end
 
-  global.mod.entities[entity_id] = info
+  storage.mod.entities[entity_id] = info
 end
 
 function M.register_and_enqueue_entity(entity, info)
@@ -534,7 +534,7 @@ function M.register_and_enqueue_entity(entity, info)
 
   M.register_entity(entity.unit_number, info)
   Heap.insert(
-    global.mod.update_queue,
+    storage.mod.update_queue,
     game.tick + M.get_default_update_period(),
     entity.unit_number
   )
@@ -542,7 +542,7 @@ end
 
 function M.unregister_entity(entity_id)
   if entity_id ~= nil then
-    global.mod.entities[entity_id] = nil
+    storage.mod.entities[entity_id] = nil
   end
 end
 
@@ -557,18 +557,18 @@ function M.register_chest_entity(entity, requests)
   }
 
   M.register_entity(entity.unit_number, info)
-  global.mod.network_chest_has_been_placed = true
+  storage.mod.network_chest_has_been_placed = true
 end
 
 function M.get_item_info(item)
-  local info = global.mod.items[item]
+  local info = storage.mod.items[item]
   if info == nil then
     info = {
       amount = 0,
       deposit_limit = 1,
       max_amount = 0,
     }
-    global.mod.items[item] = info
+    storage.mod.items[item] = info
   end
   return info
 end
@@ -650,17 +650,17 @@ function M.withdraw_item2(item, amount, priority)
 end
 
 function M.get_fluid_info(fluid_name, fluid_temp)
-  if global.mod.fluids[fluid_name] == nil then
-    global.mod.fluids[fluid_name] = {}
+  if storage.mod.fluids[fluid_name] == nil then
+    storage.mod.fluids[fluid_name] = {}
   end
-  if global.mod.fluids[fluid_name][fluid_temp] == nil then
-    global.mod.fluids[fluid_name][fluid_temp] = {
+  if storage.mod.fluids[fluid_name][fluid_temp] == nil then
+    storage.mod.fluids[fluid_name][fluid_temp] = {
       amount = 0,
       deposit_limit = 1,
       max_amount = 0,
     }
   end
-  local info = global.mod.fluids[fluid_name][fluid_temp]
+  local info = storage.mod.fluids[fluid_name][fluid_temp]
   return info
 end
 
@@ -680,7 +680,7 @@ function M.get_fluid_temps(fluid_name)
   end
 
   local temp_pairs = {}
-  local temp_map = global.mod.fluids[fluid_name]
+  local temp_map = storage.mod.fluids[fluid_name]
   if temp_map ~= nil then
     for temp, info in pairs(temp_map) do
       if info.max_amount > 0 then
@@ -706,8 +706,8 @@ end
 function M.deposit_inv_contents(inv)
   if inv ~= nil then
     local contents = inv.get_contents()
-    for item, count in pairs(contents) do
-      M.deposit_item2(item, count, Priority.ALWAYS_INSERT)
+    for _, count in pairs(contents) do
+      M.deposit_item2(count.name, count.count, Priority.ALWAYS_INSERT)
     end
     inv.clear()
   end
@@ -752,23 +752,23 @@ function M.mine_entity_into_network(entity)
 end
 
 function M.get_entity_info(entity_id)
-  return global.mod.entities[entity_id]
+  return storage.mod.entities[entity_id]
 end
 
 function M.register_tank_entity(entity, config)
-  if global.mod.tanks[entity.unit_number] ~= nil then
+  if storage.mod.tanks[entity.unit_number] ~= nil then
     return
   end
 
-  Queue.push(global.mod.scan_queue, entity.unit_number)
-  global.mod.tanks[entity.unit_number] = {
+  Queue.push(storage.mod.scan_queue, entity.unit_number)
+  storage.mod.tanks[entity.unit_number] = {
     entity = entity,
     config = config,
   }
 end
 
 function M.delete_tank_entity(unit_number)
-  global.mod.tanks[unit_number] = nil
+  storage.mod.tanks[unit_number] = nil
 end
 
 function M.put_tank_contents_in_network(entity)
@@ -788,27 +788,27 @@ function M.put_tank_contents_in_network(entity)
 end
 
 function M.get_chest_info(unit_number)
-  return global.mod.chests[unit_number]
+  return storage.mod.chests[unit_number]
 end
 
 function M.get_tank_info(unit_number)
-  return global.mod.tanks[unit_number]
+  return storage.mod.tanks[unit_number]
 end
 
 function M.copy_entity_config(source_id, dest_id)
-  local source_config = global.mod.entities[source_id].config
+  local source_config = storage.mod.entities[source_id].config
   local dest_config = Helpers.deep_copy(source_config)
-  global.mod.entities[dest_id].config = dest_config
+  storage.mod.entities[dest_id].config = dest_config
 end
 
 function M.copy_chest_requests(source_unit_number, dest_unit_number)
-  global.mod.chests[dest_unit_number].requests =
-    global.mod.chests[source_unit_number].requests
+  storage.mod.chests[dest_unit_number].requests =
+    storage.mod.chests[source_unit_number].requests
 end
 
 function M.copy_tank_config(source_unit_number, dest_unit_number)
-  global.mod.tanks[dest_unit_number].config =
-    global.mod.tanks[source_unit_number].config
+  storage.mod.tanks[dest_unit_number].config =
+    storage.mod.tanks[source_unit_number].config
 end
 
 function M.set_chest_requests(unit_number, requests)
@@ -816,16 +816,16 @@ function M.set_chest_requests(unit_number, requests)
   if info == nil then
     return
   end
-  global.mod.chests[unit_number].requests = requests
+  storage.mod.chests[unit_number].requests = requests
 end
 
 function M.get_item_count(item_name)
-  return global.mod.items[item_name] or 0
+  return storage.mod.items[item_name] or 0
 end
 
 function M.get_fluid_count(fluid_name, temp)
   temp = math.ceil(temp)
-  local fluid_temps = global.mod.fluids[fluid_name]
+  local fluid_temps = storage.mod.fluids[fluid_name]
   if fluid_temps == nil then
     return 0
   end
@@ -833,30 +833,30 @@ function M.get_fluid_count(fluid_name, temp)
 end
 
 function M.get_items()
-  return global.mod.items
+  return storage.mod.items
 end
 
 function M.get_fluids()
-  return global.mod.fluids
+  return storage.mod.fluids
 end
 
 function M.set_item_count(item_name, count)
-  if count <= 0 then
-    global.mod.items[item_name] = nil
+  if count.count <= 0 then
+    storage.mod.items[item_name] = nil
   else
-    global.mod.items[item_name] = count
+    storage.mod.items[item_name] = count.count
   end
 end
 
 function M.set_fluid_count(fluid_name, temp, count)
   temp = math.ceil(temp)
   if count <= 0 then
-    global.mod.fluids[fluid_name][temp] = nil
+    storage.mod.fluids[fluid_name][temp] = nil
   else
-    local fluid_temps = global.mod.fluids[fluid_name]
+    local fluid_temps = storage.mod.fluids[fluid_name]
     if fluid_temps == nil then
       fluid_temps = {}
-      global.mod.fluids[fluid_name] = fluid_temps
+      storage.mod.fluids[fluid_name] = fluid_temps
     end
     fluid_temps[temp] = count
   end
@@ -869,26 +869,26 @@ end
 
 function M.increment_item_count(item_name, delta)
   local count = M.get_item_count(item_name)
-  global.mod.items[item_name] = count + delta
+  storage.mod.items[item_name] = count + delta
 end
 
 function M.get_scan_queue_size()
-  return global.mod.scan_queue.size
+  return storage.mod.scan_queue.size
 end
 
 function M.scan_queue_pop()
-  return Queue.pop_random(global.mod.scan_queue, global.mod.rand)
+  return Queue.pop_random(storage.mod.scan_queue, storage.mod.rand)
 end
 
 function M.scan_queue_push(unit_number)
-  Queue.push(global.mod.scan_queue, unit_number)
+  Queue.push(storage.mod.scan_queue, unit_number)
 end
 
 function M.get_player_info(player_index)
-  local info = global.mod.player_info[player_index]
+  local info = storage.mod.player_info[player_index]
   if info == nil then
     info = {}
-    global.mod.player_info[player_index] = info
+    storage.mod.player_info[player_index] = info
   end
   return info
 end
@@ -905,7 +905,7 @@ function M.get_window_state(player_index, window_name)
 end
 
 function M.get_player_info_map()
-  return global.mod.player_info
+  return storage.mod.player_info
 end
 
 function M.get_ui_state(player_index)
@@ -976,28 +976,28 @@ function M.update_queue(update_entity)
   end
 
   for _ = 1, MAX_ENTITIES_TO_UPDATE do
-    local unit_number = Queue.pop(global.mod.scan_queue)
+    local unit_number = Queue.pop(storage.mod.scan_queue)
     if unit_number == nil then
       break
     end
 
     local status = inner_update_entity(unit_number)
     if status == M.UPDATE_STATUS.NOT_UPDATED or status == M.UPDATE_STATUS.UPDATED or status == M.UPDATE_STATUS.ALREADY_UPDATED then
-      Queue.push(global.mod.scan_queue, unit_number)
+      Queue.push(storage.mod.scan_queue, unit_number)
     end
   end
 
   -- finally, swap a random entity to the front of the queue to introduce randomness in update order.
-  Queue.swap_random_to_front(global.mod.scan_queue, global.mod.rand)
+  Queue.swap_random_to_front(storage.mod.scan_queue, storage.mod.rand)
 end
 
 -- translate a tile name to the item name ("stone-path" => "stone-brick")
 function M.resolve_name(name)
-  if game.item_prototypes[name] ~= nil or game.fluid_prototypes[name] ~= nil then
+  if prototypes.item[name] ~= nil or prototypes.fluid[name] ~= nil then
     return name
   end
 
-  local prot = game.tile_prototypes[name]
+  local prot = prototypes.tile[name]
   if prot ~= nil then
     local mp = prot.mineable_properties
     if mp.minable and #mp.products == 1 then
@@ -1018,9 +1018,9 @@ end
 
 function M.get_entities_to_update_on_tick(tick)
   local result = {}
-  while global.mod.update_queue.size > 0 and #result < 20 do
-    table.insert(result, Heap.peek(global.mod.update_queue))
-    Heap.pop(global.mod.update_queue)
+  while storage.mod.update_queue.size > 0 and #result < 20 do
+    table.insert(result, Heap.peek(storage.mod.update_queue))
+    Heap.pop(storage.mod.update_queue)
   end
   return result
 end

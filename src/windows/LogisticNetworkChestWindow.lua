@@ -156,7 +156,7 @@ function M.rerender_requests(state)
       direction = "horizontal",
     })
     for _, request in ipairs(row) do
-      local item_proto = game.item_prototypes[request.item]
+      local item_proto = prototypes.item[request.item]
       local name = item_proto.localised_name
       local sprite_button = {
         type = "sprite-button",

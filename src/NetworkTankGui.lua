@@ -213,7 +213,7 @@ function M.set_default_buffer_and_limit(player_index)
       limit = Constants.MAX_TANK_SIZE
     end
     M.set_temperature(
-      game.fluid_prototypes[fluid].default_temperature,
+      prototypes.fluid[fluid].default_temperature,
       nt_ui
     )
     M.set_buffer(Constants.MAX_TANK_SIZE, nt_ui)

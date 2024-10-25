@@ -13,7 +13,7 @@ function M.on_create_entity(state)
     state.config = { requests = {}, has_been_updated = false }
   end
 
-  global.mod.network_chest_has_been_placed = true
+  storage.mod.network_chest_has_been_placed = true
 end
 
 function M.copy_config(entity_id)
@@ -94,7 +94,7 @@ function M.update_network_chest_capacity(info)
 
   local desired_slots = {}
   for _, request in ipairs(requests) do
-    local stack_size = game.item_prototypes[request.item].stack_size
+    local stack_size = prototypes.item[request.item].stack_size
     if request.desired_capacity == nil then
       if request.type == "provide" then
         request.desired_capacity = stack_size
@@ -114,7 +114,7 @@ function M.update_network_chest_capacity(info)
   for idx, request in ipairs(requests) do
     local n_slots = slots[idx]
     request.n_slots = n_slots
-    local stack_size = game.item_prototypes[request.item].stack_size
+    local stack_size = prototypes.item[request.item].stack_size
     local real_capacity
     if request.type == "provide" then
       real_capacity = n_slots * stack_size
@@ -147,10 +147,10 @@ function M.update_network_chest_capacity(info)
   end
 
   -- put remaining items in shared storage
-  for item, count in pairs(contents) do
-    assert(count >= 0)
-    if count > 0 then
-      GlobalState.deposit_item2(item, count, Priority.ALWAYS_INSERT)
+  for _, count in pairs(contents) do
+    assert(count.count >= 0)
+    if count.count > 0 then
+      GlobalState.deposit_item2(count.item, count.count, Priority.ALWAYS_INSERT)
     end
   end
 end

@@ -209,7 +209,7 @@ local function on_create_ghost(entity)
       { type = entity.name, entity = entity }
     )
     Heap.insert(
-      global.mod.update_queue,
+      storage.mod.update_queue,
       game.tick + GlobalState.get_default_update_period(),
       entity.unit_number
     )
@@ -255,7 +255,7 @@ local function generic_on_create_entity(event)
     if not entity_def.do_not_add_to_update_queue then
       GlobalState.register_entity(entity.unit_number, state)
       Heap.insert(
-        global.mod.update_queue,
+        storage.mod.update_queue,
         game.tick + constants.MIN_UPDATE_TICKS,
         entity.unit_number
       )
@@ -441,12 +441,12 @@ function M.on_tick()
   GlobalState.start_timer("Get Entities From Queue")
   local entities_to_update = {}
   while #entities_to_update < 20 do
-    local top = Heap.peek(global.mod.update_queue)
+    local top = Heap.peek(storage.mod.update_queue)
     if top == nil or top.key >= game.tick then
       -- if top == nil then
       break
     end
-    Heap.pop(global.mod.update_queue)
+    Heap.pop(storage.mod.update_queue)
     table.insert(entities_to_update, top.value)
   end
   GlobalState.stop_timer("Get Entities From Queue")
@@ -467,9 +467,9 @@ function M.on_tick()
         if next_update_ticks == "UNREGISTER_ENTITY" then
           GlobalState.unregister_entity(entity_id)
         elseif type(next_update_ticks) == "number" then
-          local rand_delta = global.mod.rand() * 0.1 * next_update_ticks
+          local rand_delta = storage.mod.rand() * 0.1 * next_update_ticks
           Heap.insert(
-            global.mod.update_queue,
+            storage.mod.update_queue,
             game.tick + next_update_ticks + rand_delta,
             entity_id
           )
@@ -480,10 +480,10 @@ function M.on_tick()
       end
     end
   end
-  if not (global.mod.update_queue.size == Helpers.table_len(global.mod.entities)) then
+  if not (storage.mod.update_queue.size == Helpers.table_len(storage.mod.entities)) then
     game.print(string.format("update queue %s != entities %s",
-      global.mod.update_queue.size,
-      Helpers.table_len(global.mod.entities)
+      storage.mod.update_queue.size,
+      Helpers.table_len(storage.mod.entities)
     ))
   end
   GlobalState.stop_timer("On Tick")

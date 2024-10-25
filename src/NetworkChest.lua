@@ -110,9 +110,9 @@ function M.generic_destroy_handler(event, opts)
     if not opts.do_not_delete_entity then
       GlobalState.delete_chest_entity(entity.unit_number)
     end
-    if global.mod.network_chest_gui ~= nil and global.mod.network_chest_gui.entity.unit_number == entity.unit_number then
-      global.mod.network_chest_gui.frame.destroy()
-      global.mod.network_chest_gui = nil
+    if storage.mod.network_chest_gui ~= nil and storage.mod.network_chest_gui.entity.unit_number == entity.unit_number then
+      storage.mod.network_chest_gui.frame.destroy()
+      storage.mod.network_chest_gui = nil
     end
   elseif entity.name == "network-tank" then
     GlobalState.put_tank_contents_in_network(entity)
@@ -285,7 +285,7 @@ function M.on_pre_entity_settings_pasted(event)
           for _, product in ipairs(recipe.products) do
             if product.type == "item" and current_items[product.name] == nil then
               current_items[product.name] = true
-              local stack_size = game.item_prototypes[product.name].stack_size
+              local stack_size = prototypes.item[product.name].stack_size
               local buffer = math.min(buffer_size, stack_size)
               table.insert(requests, {
                 type = "give",
@@ -324,7 +324,7 @@ function M.on_pre_entity_settings_pasted(event)
         for _, ingredient in ipairs(recipe.ingredients) do
           if ingredient.type == "item" and current_items[ingredient.name] == nil then
             current_items[ingredient.name] = true
-            local stack_size = game.item_prototypes[ingredient.name]
+            local stack_size = prototypes.item[ingredient.name]
               .stack_size
             local buffer = math.min(buffer_size, stack_size)
             table.insert(requests, {
@@ -345,14 +345,14 @@ end
 function M.trash_to_network(trash_inv)
   if trash_inv ~= nil then
     for name, count in pairs(trash_inv.get_contents()) do
-      GlobalState.increment_item_count(name, count)
+      GlobalState.increment_item_count(count.name, count.count)
     end
     trash_inv.clear()
   end
 end
 
 function M.updatePlayers()
-  if not global.mod.network_chest_has_been_placed then
+  if not storage.mod.network_chest_has_been_placed then
     return
   end
 
@@ -799,13 +799,13 @@ function M.on_gui_selected_tab_changed(event)
 end
 
 function M.add_take_btn_enabled()
-  local takes = GlobalState.get_chest_info(global.mod.network_chest_gui.entity
+  local takes = GlobalState.get_chest_info(storage.mod.network_chest_gui.entity
     .unit_number).takes
   return #takes == 0 or M.is_request_valid(takes[#takes])
 end
 
 function M.add_give_btn_enabled()
-  local gives = GlobalState.get_chest_info(global.mod.network_chest_gui.entity
+  local gives = GlobalState.get_chest_info(storage.mod.network_chest_gui.entity
     .unit_number).gives
   return #gives == 0 or M.is_request_valid(gives[#gives])
 end

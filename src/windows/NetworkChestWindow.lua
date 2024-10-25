@@ -258,7 +258,7 @@ function M.rerender_requests(state)
       direction = "horizontal",
     })
     for _, request in ipairs(row) do
-      local item_proto = game.item_prototypes[request.item]
+      local item_proto = prototypes.item[request.item]
       local name = item_proto.localised_name
       local sprite_button = {
         type = "sprite-button",
@@ -280,7 +280,7 @@ function M.rerender_selected_item_flow(state)
   state.selected_item_flow.clear()
   if state.selected_item ~= nil and state.requests[state.selected_item] ~= nil then
     local request = state.requests[state.selected_item]
-    local item_proto = game.item_prototypes[request.item]
+    local item_proto = prototypes.item[request.item]
     local name = item_proto.localised_name
 
     state.selected_item_flow.add({

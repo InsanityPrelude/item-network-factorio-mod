@@ -67,7 +67,7 @@ table.insert(M.elem_handlers, {
       end
 
       local network_count = GlobalState.get_item_info(item_name).amount
-      local stack_size = game.item_prototypes[item_name].stack_size
+      local stack_size = prototypes.item[item_name].stack_size
 
       if event.button == defines.mouse_button_type.left then
         -- shift moves a stack, non-shift moves 1 item
@@ -255,7 +255,7 @@ function M.on_open_window(state, player, entity)
 
   header_flow.add {
     type = "sprite-button",
-    sprite = "utility/close_white",
+    sprite = "utility/close",
     hovered_sprite = "utility/close_black",
     clicked_sprite = "utility/close_black",
     style = "close_button",
@@ -299,7 +299,7 @@ function M.on_close_window(state)
 end
 
 local function get_item_icon(item_name, info)
-  local item_proto = game.item_prototypes[item_name]
+  local item_proto = prototypes.item[item_name]
   return {
     type = "sprite-button",
     elem_type = "item",
@@ -321,7 +321,7 @@ local function get_item_icon(item_name, info)
 end
 
 local function get_missing_item_icon(item_name, missing_count)
-  local item_proto = game.item_prototypes[item_name]
+  local item_proto = prototypes.item[item_name]
   return {
     type = "sprite-button",
     elem_type = "item",
@@ -339,7 +339,7 @@ local function get_missing_item_icon(item_name, missing_count)
 end
 
 local function get_missing_fluid_icon(fluid, temp, missing_count)
-  local fluid_proto = game.fluid_prototypes[fluid]
+  local fluid_proto = prototypes.fluid[fluid]
   return {
     type = "sprite-button",
     elem_type = "fluid",
@@ -359,7 +359,7 @@ local function get_missing_fluid_icon(fluid, temp, missing_count)
 end
 
 local function get_fluid_icon(state, info, fluid_name, temp)
-  local proto = game.fluid_prototypes[fluid_name]
+  local proto = prototypes.fluid[fluid_name]
 
   local highlighted = (
     state.selected_fluid ~= nil
@@ -477,14 +477,14 @@ function M.render_selected_tab(state)
         state.selected_fluid.fluid_temp
       )
 
-      local global_limit_flow = main_flow.add({
+      local storage_limit_flow = main_flow.add({
         type = "flow",
         direction = "horizontal",
       })
 
-      global_limit_flow.add({ type = "label", caption = "Global Deposit Limit" })
+      storage_limit_flow.add({ type = "label", caption = "Global Deposit Limit" })
 
-      local field = global_limit_flow.add({
+      local field = storage_limit_flow.add({
         type = "textfield",
         numeric = true,
         allow_decimal = false,

@@ -114,7 +114,7 @@ function M.rerender(state)
       direction = "horizontal",
     })
     for _, fluid in ipairs(row) do
-      local fluid_proto = game.fluid_prototypes[fluid.name]
+      local fluid_proto = prototypes.fluid[fluid.name]
       local sprite_button = {
         type = "sprite-button",
         elem_type = "item",
@@ -140,7 +140,7 @@ function M.rerender(state)
     { label = "Choose Temp", value = nil },
   }
   local selected_fluid = state.fluid_options[state.fluid_idx]
-  local fluid_proto = game.fluid_prototypes[selected_fluid.name]
+  local fluid_proto = prototypes.fluid[selected_fluid.name]
   local available_temps = GlobalState.get_fluid_temps(selected_fluid.name)
   for _, temp in ipairs(available_temps) do
     local formatted_temp = string.format("%s", temp)

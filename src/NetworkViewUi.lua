@@ -99,7 +99,7 @@ function M.open_main_frame(player_index)
 
   header_flow.add {
     type = "sprite-button",
-    sprite = "utility/close_white",
+    sprite = "utility/close",
     hovered_sprite = "utility/close_black",
     clicked_sprite = "utility/close_black",
     style = "close_button",
@@ -149,7 +149,7 @@ local tab_idx_to_view_type = {
 
 
 local function get_item_tooltip(name, count)
-  local info = game.item_prototypes[name]
+  local info = prototypes.item[name]
   if info == nil then
     return {
       "",
@@ -168,7 +168,7 @@ end
 
 local function get_fluid_tooltip(name, temp, count)
   local localised_name
-  local info = game.fluid_prototypes[name]
+  local info = prototypes.fluid[name]
   if info == nil then
     localised_name = name or "Unknown Fluid"
   else
@@ -183,7 +183,7 @@ local function get_fluid_tooltip(name, temp, count)
 end
 
 local function get_item_shortage_tooltip(name, count)
-  local info = game.item_prototypes[name]
+  local info = prototypes.item[name]
   local localised_name
   if info == nil then
     localised_name = name or "Unknown Item"
@@ -289,7 +289,7 @@ function M.get_sprite_button_def(item, view_type)
         tooltip = get_item_tooltip(item.item, item.count)
         tags = { event = UiConstants.NV_ITEM_SPRITE_BUTTON, item = item.item }
       end
-      if game.item_prototypes[item.item] == nil then
+      if prototypes.item[item.item] == nil then
         sprite_path = nil
       else
         sprite_path = "item/" .. item.item
@@ -298,7 +298,7 @@ function M.get_sprite_button_def(item, view_type)
       elem_type = "fluid"
       tags = { event = UiConstants.NV_FLUID_SPRITE_BUTTON }
       tooltip = get_fluid_tooltip(item.item, item.temp, item.count)
-      if game.fluid_prototypes[item.item] == nil then
+      if prototypes.fluid[item.item] == nil then
         sprite_path = nil
       else
         sprite_path = "fluid/" .. item.item
@@ -340,7 +340,7 @@ function M.on_gui_click_item(event, element)
     end
 
     local network_count = GlobalState.get_item_count(item_name)
-    local stack_size = game.item_prototypes[item_name].stack_size
+    local stack_size = prototypes.item[item_name].stack_size
 
     if event.button == defines.mouse_button_type.left then
       -- shift moves a stack, non-shift moves 1 item
@@ -422,7 +422,7 @@ function M.get_list_of_items(view_type)
     local missing = GlobalState.get_missing_items()
     for item_name, count in pairs(missing) do
       -- sometime shortages can have invalid item names.
-      if game.item_prototypes[item_name] ~= nil then
+      if prototypes.item[item_name] ~= nil then
         table.insert(items, { item = item_name, count = count })
       end
     end

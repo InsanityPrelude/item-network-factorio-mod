@@ -71,8 +71,7 @@ local function inner_add_network_chest(name, size, order, n_slots)
     ingredients = {
       { type = "item", name = IRON_PLATE, amount = 5 },
     },
-    result = name,
-    result_count = 1,
+    results = { { type="item", name=name, amount = 1 } }
   }
 
   data:extend({ entity, item, recipe })
@@ -95,7 +94,6 @@ function M.add_loader()
     flags = {
       "placeable-neutral",
       "player-creation",
-      "fast-replaceable-no-build-while-moving",
     },
     minable = {
       mining_time = 0.2,
@@ -162,8 +160,7 @@ function M.add_loader()
     ingredients = {
       { type = "item", name = IRON_PLATE, amount = 5 },
     },
-    result = name,
-    result_count = 1,
+    results = { { type="item", name=name, amount = 1 } }
   }
 
   data:extend({ entity, item, recipe })
@@ -172,15 +169,15 @@ end
 function M.add_network_tanks()
   M.add_network_tank(
     "network-tank", 1, "0", 5,
-    { { 0, 1 } }
+    { { 0, 0 } }
   )
   M.add_network_tank(
     "medium-network-tank", 1, "1", 250,
-    { { 0, 1 } }
+    { { 0, 0 } }
   )
   M.add_network_tank(
     "large-network-tank", 1, "2", 1000,
-    { { 0, 1 } }
+    { { 0, 0 } }
   )
 end
 
@@ -193,7 +190,7 @@ function M.add_network_tank(name, size, order, area, positions)
 
   local pipe_connections = {}
   for _, pos in ipairs(positions) do
-    table.insert(pipe_connections, { position = pos, type = "input-output" })
+    table.insert(pipe_connections, { position = pos, flow_direction = "input-output", direction = defines.direction.north })
   end
 
   local entity = {
@@ -202,7 +199,6 @@ function M.add_network_tank(name, size, order, area, positions)
     flags = {
       "placeable-neutral",
       "player-creation",
-      "fast-replaceable-no-build-while-moving",
     },
     icon = Paths.graphics .. "/entities/network-tank.png",
     icon_size = 64,
@@ -223,8 +219,7 @@ function M.add_network_tank(name, size, order, area, positions)
       { drawing_size,  drawing_size },
     },
     fluid_box = {
-      base_area = area,
-      height = constants.TANK_HEIGHT,
+      volume = area * constants.TANK_HEIGHT * 1000,
       pipe_connections = pipe_connections,
     },
     two_direction_only = false,
@@ -280,8 +275,7 @@ function M.add_network_tank(name, size, order, area, positions)
     ingredients = {
       { type = "item", name = IRON_PLATE, amount = 5 },
     },
-    result = name,
-    result_count = 1,
+    results = { { type="item", name=name, amount = 1 } }
   }
 
   data:extend({ entity, item, recipe })
@@ -306,7 +300,7 @@ function M.add_network_sensor()
 
   local recipe = table.deepcopy(data.raw["recipe"][override_item_name])
   recipe.name = RECIPE_PREFIX .. name
-  recipe.result = name
+  recipe.results = { { type="item", name=name, amount = 1 } }
   recipe.enabled = true
   recipe.category = RECIPE_CATEGORY
 
@@ -324,7 +318,6 @@ function M.add_logistic_network_chest()
     flags = {
       "placeable-neutral",
       "player-creation",
-      "fast-replaceable-no-build-while-moving",
     },
     minable = {
       mining_time = 0.2,
@@ -366,8 +359,7 @@ function M.add_logistic_network_chest()
     ingredients = {
       { type = "item", name = IRON_PLATE, amount = 5 },
     },
-    result = name,
-    result_count = 1,
+    results = { { type="item", name=name, amount = 1 } }
   }
 
   data:extend({ entity, item, recipe })

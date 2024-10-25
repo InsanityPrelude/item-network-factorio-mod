@@ -3,7 +3,7 @@ local GlobalState = require "src.GlobalState"
 local M = {}
 
 function M.update_player_logistics()
-  if not global.mod.network_chest_has_been_placed then
+  if not storage.mod.network_chest_has_been_placed then
     return
   end
 
@@ -34,16 +34,16 @@ function M.update_player_logistics()
 
           -- register main inventory
           local main_contents = main_inv.get_contents()
-          for item, count in pairs(main_contents) do
-            register_item(item, count)
+          for _, count in pairs(main_contents) do
+            register_item(count.name, count.count)
           end
 
           -- register ammo inventory
           local ammo_inv = player.get_inventory(defines.inventory.character_ammo)
           if ammo_inv ~= nil then
             local ammo_contents = ammo_inv.get_contents()
-            for item, count in pairs(ammo_contents) do
-              register_item(item, count)
+            for _, count in pairs(ammo_contents) do
+              register_item(count.name, count.count)
             end
           end
 

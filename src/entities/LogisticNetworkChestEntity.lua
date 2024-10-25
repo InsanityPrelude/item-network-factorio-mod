@@ -12,7 +12,7 @@ function M.on_create_entity(state)
     state.config = { requests = {} }
   end
 
-  global.mod.network_chest_has_been_placed = true
+  storage.mod.network_chest_has_been_placed = true
 end
 
 function M.copy_config(entity_id)
@@ -55,7 +55,7 @@ function M.on_update(info)
     local prev_at_limit = request.prev_at_limit
     local start_amount = contents[request.item] or 0
     local started_at_limit = start_amount == 0
-    local stack_size = game.item_prototypes[request.item].stack_size
+    local stack_size = prototypes.item[request.item].stack_size
 
     -- update chest capacities
     if prev_at_limit and started_at_limit then
@@ -120,11 +120,11 @@ function M.on_update(info)
   end
 
   -- dump remaining items
-  for item, count in pairs(contents) do
-    if count > 0 then
-      GlobalState.deposit_item2(item, count, Priority.ALWAYS_INSERT)
-      local removed = inv.remove({ name = item, count = count })
-      assert(removed == count)
+  for _, count in pairs(contents) do
+    if count.count > 0 then
+      GlobalState.deposit_item2(count.item, count.count, Priority.ALWAYS_INSERT)
+      local removed = inv.remove({ name = count.item, count = count.count })
+      assert(removed == count.count)
     end
   end
 
@@ -138,7 +138,7 @@ function M.update_request_capacities(info)
 
   local desired_slots = {}
   for _, request in ipairs(requests) do
-    local stack_size = game.item_prototypes[request.item].stack_size
+    local stack_size = prototypes.item[request.item].stack_size
     if request.target_capacity == nil then
       request.target_capacity = 1
     end
@@ -152,7 +152,7 @@ function M.update_request_capacities(info)
   )
   for idx, request_slots in ipairs(slots) do
     local request = requests[idx]
-    local stack_size = game.item_prototypes[request.item].stack_size
+    local stack_size = prototypes.item[request.item].stack_size
     local max_capacity = request_slots * stack_size
     request.capacity = math.min(
       request.target_capacity,

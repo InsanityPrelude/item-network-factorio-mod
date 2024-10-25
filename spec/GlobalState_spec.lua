@@ -108,7 +108,7 @@ describe("migrations", function()
   _G.game = {
     create_random_generator = create_random_generator,
     surfaces = {},
-    get_filtered_entity_prototypes = function()
+    get_entity_filtered = function()
       return {}
     end,
   }

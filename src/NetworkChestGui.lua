@@ -440,7 +440,7 @@ function Modal.set_default_buffer(player_index)
   local item = modal.item
   local request_type = modal.request_type
   if item ~= nil and request_type ~= nil then
-    local stack_size = game.item_prototypes[item].stack_size
+    local stack_size = prototypes.item[item].stack_size
     local buffer = math.min(50, stack_size)
     Modal.set_buffer(buffer, modal)
   end
@@ -452,7 +452,7 @@ function Modal.set_default_limit(player_index)
   local item = modal.item
   local request_type = modal.request_type
   if item ~= nil and request_type ~= nil then
-    local stack_size = game.item_prototypes[item].stack_size
+    local stack_size = prototypes.item[item].stack_size
     local limit
     if request_type == "take" then
       limit = 0
@@ -508,7 +508,7 @@ function Modal.try_to_confirm(player_index)
   -- make sure request size does not exceed chest size
   local used_slots = 0
   for _, request in ipairs(chest_ui.requests) do
-    local stack_size = game.item_prototypes[request.item].stack_size
+    local stack_size = prototypes.item[request.item].stack_size
 
     local request_buffer
     if modal_type == "edit" and request.item == item then
@@ -523,7 +523,7 @@ function Modal.try_to_confirm(player_index)
 
   if modal_type == "add" then
     used_slots = used_slots + math.ceil(buffer /
-      game.item_prototypes[item].stack_size)
+      prototypes.item[item].stack_size)
   end
 
   if used_slots > Constants.NUM_INVENTORY_SLOTS then

@@ -46,7 +46,7 @@ local function create_mock_chest(opts)
       bar = bar_idx
     end,
     insert = function(item_stack)
-      local stack_size = game.item_prototypes[item_stack.name].stack_size
+      local stack_size = prototypes.item[item_stack.name].stack_size
       for slot_idx = 1, bar do
         local slot = slots[slot_idx]
         if slot.name == item_stack.name and slot.count < stack_size then
@@ -82,7 +82,7 @@ end
 
 
 describe("update_network", function()
-  local function get_filtered_entity_prototypes()
+  local function get_entity_filtered()
     return {
       ["logistic-requester-chest"] = { logistic_mode = "requester" },
       ["logistic-buffer-chest"] = { logistic_mode = "buffer" },
@@ -97,7 +97,7 @@ describe("update_network", function()
   end
 
   local settings = {
-    global = {
+    storage = {
       ["item-network-number-of-entities-per-tick"] = { value = 20 },
     },
   }
@@ -107,14 +107,14 @@ describe("update_network", function()
     _G.game = {
       create_random_generator = create_random_generator,
       print = function() end,
-      get_filtered_entity_prototypes = get_filtered_entity_prototypes,
+      get_entity_filtered = get_entity_filtered,
       surfaces = {},
       create_profiler = create_mock_profiler,
     }
     _G.settings = settings
     GlobalState.inner_setup()
 
-    assert.are.same(global.mod.scan_queue.size, 0)
+    assert.are.same(storage.mod.scan_queue.size, 0)
 
     NetworkChest.update_queue()
   end)
@@ -124,7 +124,7 @@ describe("update_network", function()
     _G.game = {
       create_random_generator = create_random_generator,
       print = function() end,
-      get_filtered_entity_prototypes = get_filtered_entity_prototypes,
+      get_entity_filtered = get_entity_filtered,
       surfaces = {},
       create_profiler = create_mock_profiler,
     }
@@ -133,8 +133,8 @@ describe("update_network", function()
 
     NetworkChest.on_create({}, create_mock_chest({ unit_number = 100 }))
 
-    assert.are.same(global.mod.scan_queue.size, 1)
+    assert.are.same(storage.mod.scan_queue.size, 1)
     NetworkChest.update_queue()
-    assert.are.same(global.mod.scan_queue.size, 1)
+    assert.are.same(storage.mod.scan_queue.size, 1)
   end)
 end)
