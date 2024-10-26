@@ -150,7 +150,7 @@ function M.update_network_chest_capacity(info)
   for _, count in pairs(contents) do
     assert(count.count >= 0)
     if count.count > 0 then
-      GlobalState.deposit_item2(count.item, count.count, Priority.ALWAYS_INSERT)
+      GlobalState.deposit_item2(count.name, count.count, Priority.ALWAYS_INSERT)
     end
   end
 end

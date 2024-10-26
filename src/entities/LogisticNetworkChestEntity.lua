@@ -122,8 +122,8 @@ function M.on_update(info)
   -- dump remaining items
   for _, count in pairs(contents) do
     if count.count > 0 then
-      GlobalState.deposit_item2(count.item, count.count, Priority.ALWAYS_INSERT)
-      local removed = inv.remove({ name = count.item, count = count.count })
+      GlobalState.deposit_item2(count.name, count.count, Priority.ALWAYS_INSERT)
+      local removed = inv.remove({ name = count.name, count = count.count })
       assert(removed == count.count)
     end
   end
