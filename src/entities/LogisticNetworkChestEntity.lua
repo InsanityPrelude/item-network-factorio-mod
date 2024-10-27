@@ -53,7 +53,7 @@ function M.on_update(info)
   local capacity_changed = false
   for _, request in ipairs(requests) do
     local prev_at_limit = request.prev_at_limit
-    local start_amount = contents[request.item] or 0
+    local start_amount = inv.get_item_count(request.item) or 0
     local started_at_limit = start_amount == 0
     local stack_size = prototypes.item[request.item].stack_size
 
@@ -73,7 +73,7 @@ function M.on_update(info)
 
   -- transfer items
   for _, request in ipairs(requests) do
-    local start_amount = contents[request.item] or 0
+    local start_amount = inv.get_item_count(request.item) or 0
     local final_amount = start_amount
     local to_transfer = request.capacity - start_amount
     if to_transfer > 0 then

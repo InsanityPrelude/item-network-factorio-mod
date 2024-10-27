@@ -192,7 +192,7 @@ function M.on_update(info)
   for _, request in ipairs(requests) do
     local prev_at_limit = request.prev_at_limit
     local prev_active = request.prev_active
-    local start_amount = contents[request.item] or 0
+    local start_amount = inv.get_item_count(request.item) or 0
     local started_at_limit
     local prev_delta = nil
     if request.type == "provide" then
