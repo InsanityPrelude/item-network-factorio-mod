@@ -12,31 +12,33 @@ function M.on_update(info)
   GlobalState.deposit_inv_contents(trash_inv)
 
   local main_inv = entity.get_inventory(defines.inventory.spider_trunk)
+  local requester_point = entity.get_requester_point()
+  local requester_point = requester_point.get_section(1)
 
   -- fulfill reqeusts
-  if main_inv ~= nil and entity.request_slot_count > 0 then
+  if main_inv ~= nil and requester_point.filters_count > 0 then
     local contents = main_inv.get_contents()
-    for slot = 1, entity.request_slot_count do
-      local req = entity.get_request_slot(slot)
+    for slot = 1, requester_point.filters_count do
+      local req = requester_point.get_slot(slot)
       if req ~= nil then
-        local current_count = contents[req.name] or 0
-        local n_wanted = math.max(0, req.count - current_count)
+        local current_count = contents[req.value] or 0
+        local n_wanted = math.max(0, req.min - current_count)
 
         local n_withdrawn = GlobalState.withdraw_item2(
-          req.name,
+          req.value,
           n_wanted,
           Priority.DEFAULT
         )
         if n_withdrawn > 0 then
           local n_inserted = main_inv.insert({
-            name = req.name,
+            name = req.value,
             count = n_withdrawn,
           })
           local excess = n_withdrawn - n_inserted
           assert(excess >= 0)
           if excess > 0 then
             GlobalState.deposit_item2(
-              req.name,
+              req.value,
               excess,
               Priority.ALWAYS_INSERT
             )
@@ -46,7 +48,7 @@ function M.on_update(info)
         local shortage = n_wanted - n_withdrawn
         if shortage > 0 then
           GlobalState.register_item_shortage(
-            req.name,
+            req.value,
             entity,
             shortage
           )
