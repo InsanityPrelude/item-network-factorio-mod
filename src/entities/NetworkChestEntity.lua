@@ -242,7 +242,7 @@ function M.on_update(info)
   end
 
   for _, request in ipairs(requests) do
-    local start_amount = contents[request.item] or 0
+    local start_amount = inv.get_item_count(request.item) or 0
 
     local current_delta = 0
     local end_amount = start_amount

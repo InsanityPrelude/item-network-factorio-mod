@@ -368,7 +368,7 @@ function M.updatePlayers()
       local main_inv = player.get_inventory(defines.inventory.character_main)
       if main_inv ~= nil then
         local character = player.character
-        if character ~= nil and character.character_personal_logistic_requests_enabled then
+        if character ~= nil and character.character_logistic_requests then
           local main_contents = main_inv.get_contents()
           local cursor_stack = player.cursor_stack
           if cursor_stack ~= nil and cursor_stack.valid_for_read then
