@@ -69,12 +69,20 @@ function M.on_open_window(state, player, entity)
 
   local main_flow = frame.add({ type = "flow", direction = "vertical" })
 
+  local function nilCheck(arg)  --This is really stupid.  There absolutely has to be a more elegant way to do this. TODO: Make this less dumb.
+    if arg == nil then
+      return "deconstruction-planner"
+    else
+      return arg.name
+    end
+  end
+
   local filter_flow = main_flow.add({ type = "flow", direction = "horizontal" })
   filter_flow.add({ type = "label", caption = "Filter:" })
   filter_flow.add({
     type = "choose-elem-button",
     elem_type = "item",
-    item = filter_item,
+    item = nilCheck(filter_item),
     tags = {
       elem_id = FILTERED_ITEM_BTN_ID,
     },
