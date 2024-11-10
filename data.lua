@@ -59,7 +59,7 @@ local function inner_add_network_chest(name, size, order, n_slots)
   item.name = name
   item.place_result = name
   item.icon = Paths.graphics .. "/items/" .. name .. ".png"
-  item.size = 64
+  item.icon_size = 64
   item.order = item.order .. order
 
   local recipe = {
@@ -263,7 +263,7 @@ function M.add_network_tank(name, size, order, area, positions)
   item.name = name
   item.place_result = name
   item.icon = Paths.graphics .. "/items/" .. name .. ".png"
-  item.size = 64
+  item.icon_size = 64
   item.order = item.order .. order
 
   local recipe = {

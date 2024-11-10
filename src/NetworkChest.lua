@@ -368,7 +368,7 @@ function M.updatePlayers()
       local main_inv = player.get_inventory(defines.inventory.character_main)
       if main_inv ~= nil then
         local character = player.character
-        if character ~= nil and character.character_logistic_requests then
+        if character ~= nil and character.get_logistic_point().enabled  then
           local main_contents = main_inv.get_contents()
           local cursor_stack = player.cursor_stack
           if cursor_stack ~= nil and cursor_stack.valid_for_read then
@@ -444,7 +444,7 @@ function M.vehicle_update_entity(entity)
   end
 
   local status = GlobalState.UPDATE_STATUS.NOT_UPDATED
-  if entity.vehicle_logistic_requests_enabled then
+  if entity.get_logistic_point().enabled then
     GlobalState.start_timer("update_vehicle")
     status = M.update_vehicle(entity,
       entity.get_inventory(defines.inventory.spider_trash),

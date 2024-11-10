@@ -18,7 +18,7 @@ function M.update_player_logistics()
 
       -- get contents of player inventory
       local character = player.character
-      if character ~= nil and character.character_logistic_requests then
+      if character ~= nil and character.get_logistic_point().enabled then
         local main_inv = player.get_inventory(defines.inventory.character_main)
         if main_inv ~= nil then
           local combined_contents = {}
