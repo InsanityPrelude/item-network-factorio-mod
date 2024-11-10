@@ -40,9 +40,9 @@ function M.revive_ghost(entity)
         })
         if request_proxy ~= nil then
           local item_requests = {}
-          for item_name, item_count in pairs(request_proxy.item_requests) do
-            if item_count > 0 then
-              item_requests[item_name] = item_count
+          for idx, item_count in pairs(request_proxy.item_requests) do
+            if item_count.count > 0 then
+              item_requests[item_count.name] = item_count.count
             end
           end
           if not ItemRequestProxyEntity.fulfill_requests(request_proxy, item_requests) then

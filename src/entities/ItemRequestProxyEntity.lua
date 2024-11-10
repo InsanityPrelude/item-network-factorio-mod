@@ -59,7 +59,7 @@ function M.fulfill_requests(entity, item_requests)
     end
   end
 
-  entity.item_requests = new_requests
+  -- entity.item_requests = new_requests -- This is redundant now, I guess?  The ghosts seem to carry all the information they need without us dicking with it.
 
   if module_inv.is_full() then
     return true
